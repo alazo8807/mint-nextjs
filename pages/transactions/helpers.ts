@@ -19,8 +19,20 @@ export const fetchTransactions = async (accessToken: string | null) => {
   return data.transactions;
 };
 
-// syncTransactions calls transactions-sync api using the accessToken for plaid
-export const syncTransactions = async (accessToken: string | null) => {
+// syncTransactions calls transactions-sync api.
+export const syncTransactions = async () => {
+  const response = await fetch('/api/plaid/transactions-sync', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' }
+  });
+
+  const data = await response.json();
+  console.log('Sync Transactions:', data);
+  return data;
+};
+
+// syncTransactions calls the set-access-token api to save the token server-side using cookies
+export const saveAccessToken = async (accessToken: string | null) => {
   if (!accessToken) {
     return {
       data: null,
@@ -28,13 +40,23 @@ export const syncTransactions = async (accessToken: string | null) => {
     };
   }
 
-  const response = await fetch('/api/plaid/transactions-sync', {
+  const response = await fetch('/api/plaid/set-access-token', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ access_token: accessToken }),
   });
 
   const data = await response.json();
-  console.log('Sync Transactions:', data);
   return { data, error: null };
+};
+
+// checkAccessToken calls the check-access-token api to validate the access-token is saved as a cookie
+export const checkAccessToken = async () => {
+  const response = await fetch('/api/plaid/check-access-token', {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  });
+
+  await response.json();
+  return response.ok;
 };
