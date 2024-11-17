@@ -1,19 +1,42 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Transaction } from "plaid";
-import GetTransactionsButton from "@/components/GetTransactionsBtn";
 import PlaidLinkComponent from "@/components/PlaidLinkComponent";
 import TransactionList from "@/components/TransactionList";
 import '@/app/globals.css';
 import Link from "next/link";
+// import GetTransactionsButton from "@/components/GetTransactionsBtn";
+
+const fetchTransactions = async (accessToken: string | null) => {
+  if (!accessToken) {
+    return;
+  }
+
+  const response = await fetch('/api/plaid/get-transactions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      access_token: accessToken,
+      startDate: '2024-01-01',
+      endDate: '2024-12-31',
+    }),
+  });
+
+  const data = await response.json();
+  console.log('Transactions:', data.transactions);
+  return data.transactions;
+};
 
 export default function Transactions() {
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
 
-  const handleTransactions = (transactions: Transaction[]) => {
-    console.log({ transactions })
-    setTransactions(transactions)
-  }
+  useEffect(() => {
+    const getTransactions = async () => {
+      const transactions = await fetchTransactions(accessToken)
+      setTransactions(transactions);
+    }
+    getTransactions()
+  }, [accessToken])
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-800">
@@ -26,18 +49,18 @@ export default function Transactions() {
         </div>
       </header>
       <main className="container mx-auto px-4 py-16">
-      <section className="text-center">
+        {!accessToken && <section className="text-center">
           <h2 className="text-4xl font-extrabold mb-4">Connect to plaid first</h2>
           <p className="text-lg mb-6">
             In order to fetch your transactions you need to connect with plaid servers first.
           </p>
           <PlaidLinkComponent onAccessToken={setAccessToken}></PlaidLinkComponent>
-        </section>
+        </section>}
+        {transactions && transactions.length > 0 && <section>
+          {/* <GetTransactionsButton accessToken={accessToken} onTransactions={handleTransactions}></GetTransactionsButton> */}
+          <TransactionList transactions={transactions}></TransactionList>
+        </section>}
       </main>
-      <h1 className="text-xl font-bold">My Brand</h1>
-      
-      <GetTransactionsButton accessToken={accessToken} onTransactions={handleTransactions}></GetTransactionsButton>
-      <TransactionList transactions={transactions}></TransactionList>
     </div>
   )
 }
