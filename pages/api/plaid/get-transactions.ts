@@ -26,6 +26,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       access_token,
       start_date: startDate,
       end_date: endDate,
+      options: {
+        include_original_description: true
+      }
     });
     res.status(200).json(response.data);
   } catch (error) {

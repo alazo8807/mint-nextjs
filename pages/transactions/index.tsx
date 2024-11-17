@@ -1,39 +1,40 @@
 import { useEffect, useState } from "react";
-import { Transaction } from "plaid";
 import PlaidLinkComponent from "@/components/PlaidLinkComponent";
-import TransactionList from "@/components/TransactionList";
+import TransactionList from "@/components/TransactionTable";
 import '@/app/globals.css';
 import Link from "next/link";
+import { syncTransactions } from "./helpers";
 // import GetTransactionsButton from "@/components/GetTransactionsBtn";
+import { Transaction } from 'plaid';
 
-const fetchTransactions = async (accessToken: string | null) => {
-  if (!accessToken) {
-    return;
-  }
-
-  const response = await fetch('/api/plaid/get-transactions', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      access_token: accessToken,
-      startDate: '2024-01-01',
-      endDate: '2024-12-31',
-    }),
-  });
-
-  const data = await response.json();
-  console.log('Transactions:', data.transactions);
-  return data.transactions;
-};
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+interface SyncTransactionsData {
+  added: Transaction[];
+  hasMore: boolean;
+  modified: Transaction[];
+  removed: Transaction[];
+}
 
 export default function Transactions() {
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
 
+  // Load list of transactions when accessToken is available
   useEffect(() => {
     const getTransactions = async () => {
-      const transactions = await fetchTransactions(accessToken)
-      setTransactions(transactions);
+      if (accessToken) {
+        const { data, error } = await syncTransactions(accessToken);
+        if (error && error.message) {
+          console.log("Error with sync transactions", error.message, error.code)
+          return;
+        }
+        setTransactions((prev) => [
+          ...data.added,
+          ...prev.map((t) =>
+            data.modified.find((m: { transaction_id: string; }) => m.transaction_id === t.transaction_id) || t
+          ),
+        ]);
+      }
     }
     getTransactions()
   }, [accessToken])
@@ -49,6 +50,7 @@ export default function Transactions() {
         </div>
       </header>
       <main className="container mx-auto px-4 py-16">
+        {/* Connect to plaid if no accessToken available*/}
         {!accessToken && <section className="text-center">
           <h2 className="text-4xl font-extrabold mb-4">Connect to plaid first</h2>
           <p className="text-lg mb-6">
@@ -56,9 +58,10 @@ export default function Transactions() {
           </p>
           <PlaidLinkComponent onAccessToken={setAccessToken}></PlaidLinkComponent>
         </section>}
+        {/* Display transactions table once data is ready */}
         {transactions && transactions.length > 0 && <section>
-          {/* <GetTransactionsButton accessToken={accessToken} onTransactions={handleTransactions}></GetTransactionsButton> */}
           <TransactionList transactions={transactions}></TransactionList>
+          {/* <GetTransactionsButton accessToken={accessToken} onTransactions={handleTransactions}></GetTransactionsButton> */}
         </section>}
       </main>
     </div>
