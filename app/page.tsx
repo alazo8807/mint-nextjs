@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Home() {
   return (
     <div className="min-h-screen bg-gray-50 text-gray-800">
@@ -5,6 +7,7 @@ export default function Home() {
         <div className="container mx-auto px-4 flex justify-between items-center">
           <h1 className="text-xl font-bold">My Brand</h1>
           <nav>
+            <Link className="mx-2 hover:underline" href="/transactions">Transactions</Link>
             <a href="#about" className="mx-2 hover:underline">About</a>
             <a href="#services" className="mx-2 hover:underline">Services</a>
             <a href="#contact" className="mx-2 hover:underline">Contact</a>

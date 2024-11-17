@@ -1,3 +1,5 @@
+'use client'
+
 import { usePlaidLink } from 'react-plaid-link';
 import { useEffect, useState } from 'react';
 
@@ -29,8 +31,8 @@ const PlaidLinkComponent: React.FC<{ onAccessToken: (token: string) => void }> =
   const { open, ready } = usePlaidLink(config);
 
   return (
-    <button onClick={() => open()} disabled={!ready}>
-      Connect Bank
+    <button className="btn btn-primary" onClick={() => open()} disabled={!ready}>
+      Connect
     </button>
   );
 };

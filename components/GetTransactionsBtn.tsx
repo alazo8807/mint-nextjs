@@ -27,7 +27,7 @@ const GetTransactionsButton: React.FC<{ accessToken: string | null, onTransactio
     onTransactions(data.transactions);
   };
 
-  return <button onClick={fetchTransactions}>Get Transactions</button>;
+  return <button className="btn btn-primary" onClick={fetchTransactions}>Get Transactions</button>;
 };
 
   // interface Transaction {
