@@ -23,8 +23,8 @@ const TransactionList: React.FC<TransactionListProps> = ({ transactions }) => {
         {transactions.map((transaction) => (
           <tr key={transaction.transaction_id}>
           <td className="border border-gray-200 px-4 py-2">{transaction.date}</td>
-          <td className="border border-gray-200 px-4 py-2">{transaction.original_description}</td>
-          <td className="border border-gray-200 px-4 py-2">{transaction.personal_finance_category?.primary}</td>
+          <td className="border border-gray-200 px-4 py-2">{transaction.name}</td>
+          <td className="border border-gray-200 px-4 py-2">{transaction.category}</td>
           <td className="border border-gray-200 px-4 py-2">{transaction.amount < 0 ? (
                   <span className="text-red-600">{transaction.amount.toFixed(2)}</span>
                 ) : (

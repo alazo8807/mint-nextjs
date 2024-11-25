@@ -1,4 +1,6 @@
-// /pages/api/get-transactions.ts
+// Always try to favor the use of transactions-sync route.
+// This route is not in use at the moment.
+// You can use this route if you need to fetch transactions for a date range.
 import { NextApiRequest, NextApiResponse } from 'next';
 import { Configuration, PlaidApi, PlaidEnvironments } from 'plaid';
 

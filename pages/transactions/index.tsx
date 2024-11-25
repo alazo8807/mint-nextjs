@@ -29,21 +29,40 @@ export default function Transactions() {
     checkIsAuthenticated();
   }, []);
 
-  // Load list of transactions when accessToken is available
+  // // Load list of transactions when accessToken is available
+  // useEffect(() => {
+  //   const getTransactions = async () => {
+  //     if (isAuthenticated) {
+  //       const data = await syncTransactions();
+  //       setTransactions((prev) => [
+  //         ...data.added,
+  //         ...prev.map((t) =>
+  //           data.modified.find((m: { transaction_id: string; }) => m.transaction_id === t.transaction_id) || t
+  //         ),
+  //       ]);
+  //     }
+  //   }
+  //   getTransactions();
+  // }, [isAuthenticated])
+
   useEffect(() => {
-    const getTransactions = async () => {
-      if (isAuthenticated) {
-        const data = await syncTransactions();
-        setTransactions((prev) => [
-          ...data.added,
-          ...prev.map((t) =>
-            data.modified.find((m: { transaction_id: string; }) => m.transaction_id === t.transaction_id) || t
-          ),
-        ]);
+    async function fetchTransactions() {
+      try {
+        const response = await fetch('/api/transactions');
+        if (!response.ok) {
+          throw new Error('Failed to fetch transactions');
+        }
+        const data = await response.json();
+        setTransactions(data);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (error: any) {
+        console.error(error);
+        setError(error.message);
       }
     }
-    getTransactions();
-  }, [isAuthenticated])
+
+    fetchTransactions();
+  }, []);
 
   // handleAccessToken persists the accessToken received
   const handleAccessToken = async (accessToken: string) => {
