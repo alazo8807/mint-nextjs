@@ -13,9 +13,7 @@ const configuration = new Configuration({
   },
 });
 
-const plaidClient = new PlaidApi(configuration);
-
-const prisma = new PrismaClient(); 
+const plaidClient = new PlaidApi(configuration); 
 
 const db = new Map<string, string | null>(); // TODO: Save in db
 
@@ -43,28 +41,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       // Update the next cursor for future syncs
       db.set(accessToken, response.data.next_cursor);
-
-      // Store received transactions.
-      // TODO: Fetch them from db first, build the final list of transactions and persist them before returning.
-      // Save transactions to SQLite
-      await prisma.transaction.createMany({
-        data: response.data.added.map(txn => ({
-          id: txn.transaction_id,
-          accountId: txn.account_id,
-          amount: txn.amount,
-          currency: txn.iso_currency_code, // Ensure null for missing values
-          unofficialCurrency: txn.unofficial_currency_code || null,
-          date: new Date(txn.date),
-          authorizedDate: txn.authorized_date ? new Date(txn.authorized_date) : null,
-          name: txn.name,
-          merchantName: txn.merchant_name || null,
-          pending: txn.pending,
-          pendingTransactionId: txn.pending_transaction_id || null,
-          category: txn.category ? JSON.stringify(txn.category) : null,
-          paymentChannel: txn.payment_channel,
-        })) as Prisma.TransactionCreateManyInput[],
-      });
-      
 
       // Return the fetched transactions
       res.status(200).json({

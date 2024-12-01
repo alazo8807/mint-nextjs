@@ -1,10 +1,9 @@
 'use client'
 
 import React from 'react';
-import { Transaction } from 'plaid';
 
 interface TransactionListProps {
-  transactions: Transaction[];
+  transactions: Array<any>;
 }
 
 const TransactionList: React.FC<TransactionListProps> = ({ transactions }) => {
@@ -21,7 +20,7 @@ const TransactionList: React.FC<TransactionListProps> = ({ transactions }) => {
         </thead>
         <tbody>
         {transactions.map((transaction) => (
-          <tr key={transaction.transaction_id}>
+          <tr key={transaction.id}>
           <td className="border border-gray-200 px-4 py-2">{transaction.date}</td>
           <td className="border border-gray-200 px-4 py-2">{transaction.name}</td>
           <td className="border border-gray-200 px-4 py-2">{transaction.category}</td>

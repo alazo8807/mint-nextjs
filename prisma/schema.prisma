@@ -15,6 +15,7 @@ datasource db {
 
 model Transaction {
   id                 String   @id
+  transactionId      String
   accountId          String
   amount             Float
   currency           String?  // Nullable
