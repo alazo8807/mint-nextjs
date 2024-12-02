@@ -2,12 +2,25 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { PrismaClient, Prisma } from '@prisma/client';
 
 const prisma = new PrismaClient();
+const ITEMS_PER_PAGE = 10;  // Set the number of items per page
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'GET') {
+    const { page = 1 } = req.query; // Default to page 1 if no page is specified
+    const pageNumber = parseInt(page as string, 10);
+    const skip = (pageNumber - 1) * ITEMS_PER_PAGE;
+
     try {
-      const transactions = await prisma.transaction.findMany();
-      res.status(200).json(transactions);
+      const transactions = await prisma.transaction.findMany({
+        skip,
+        take: ITEMS_PER_PAGE,
+      });
+
+        // Get the total count of transactions to calculate total pages
+      const totalTransactions = await prisma.transaction.count();
+      const totalPages = Math.ceil(totalTransactions / ITEMS_PER_PAGE);
+
+      res.status(200).json({ transactions, totalPages, currentPage: pageNumber });
     } catch (error) {
       console.error('Error fetching transactions:', error);
       res.status(500).json({ error: 'Error fetching transactions' });

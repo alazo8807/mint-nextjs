@@ -4,7 +4,7 @@ import TransactionList from "@/components/TransactionTable";
 import '@/app/globals.css';
 import Link from "next/link";
 import { saveAccessToken, checkAccessToken, syncTransactions } from "./helpers";
-import SyncBtn from "./syncBtn";
+import SyncBtn from "./SyncBtn";
 
 // import GetTransactionsButton from "@/components/GetTransactionsBtn";
 // import { Transaction } from 'plaid';
@@ -12,6 +12,9 @@ import SyncBtn from "./syncBtn";
 export default function Transactions() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [transactions, setTransactions] = useState<any[]>([]);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
+
   const [isSynching, setIsSynching] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -30,14 +33,17 @@ export default function Transactions() {
       return;
     }
 
-    async function fetchTransactions() {
+    async function fetchTransactions(page: number) {
       try {
-        const response = await fetch('/api/transactions');
+        const response = await fetch(`/api/transactions?page=${page}`);
         if (!response.ok) {
           throw new Error('Failed to fetch transactions');
         }
-        const data = await response.json();
-        setTransactions(data);
+        const { transactions, currentPage: currentPageResponse, totalPages: totalPagesResponse } = await response.json();
+        setTransactions(transactions);
+        setCurrentPage(currentPageResponse);
+        setTotalPages(totalPagesResponse);
+
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
         console.error(error);
@@ -45,8 +51,8 @@ export default function Transactions() {
       }
     }
 
-    fetchTransactions();
-  }, [isSynching]);
+    fetchTransactions(currentPage);
+  }, [isSynching, currentPage]);
 
   // handleAccessToken persists the accessToken received
   const handleAccessToken = async (accessToken: string) => {
@@ -126,8 +132,7 @@ export default function Transactions() {
         </section>}
         {/* Display transactions table once data is ready */}
         {transactions && transactions.length > 0 && <section>
-          <TransactionList transactions={transactions}></TransactionList>
-          {/* <GetTransactionsButton accessToken={accessToken} onTransactions={handleTransactions}></GetTransactionsButton> */}
+          <TransactionList transactions={transactions} currentPage={currentPage} totalPages={totalPages} onNext={(page) => setCurrentPage(page)} onPrev={(page) => setCurrentPage(page)}></TransactionList>
         </section>}
       </main>
     </div>

@@ -4,9 +4,13 @@ import React from 'react';
 
 interface TransactionListProps {
   transactions: Array<any>;
+  currentPage: number;
+  totalPages: number;
+  onPrev: (page: number) => void;
+  onNext: (page: number) => void;
 }
 
-const TransactionList: React.FC<TransactionListProps> = ({ transactions }) => {
+const TransactionList: React.FC<TransactionListProps> = ({ transactions, currentPage, totalPages, onPrev, onNext }) => {
   return (
       <div className="overflow-x-auto">
       <table className="table w-full border-collapse border border-gray-200">
@@ -33,6 +37,25 @@ const TransactionList: React.FC<TransactionListProps> = ({ transactions }) => {
         ))}
         </tbody>
       </table>
+
+      {/* Pagination Controls */}
+      <div className="flex justify-center mt-4 space-x-2">
+        <button
+          className="btn btn-neutral"
+          onClick={() => onPrev(Math.max(currentPage - 1, 1))}
+          disabled={currentPage === 1}
+        >
+          Previous
+        </button>
+        <span className="flex items-center justify-center">{currentPage} / {totalPages}</span>
+        <button
+          className="btn btn-neutral"
+          onClick={() => onNext(Math.min(currentPage + 1, totalPages))}
+          disabled={currentPage === totalPages}
+        >
+          Next
+        </button>
+      </div>
     </div>
   );
 };

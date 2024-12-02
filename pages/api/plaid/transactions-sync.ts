@@ -1,7 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { Configuration, PlaidApi, PlaidEnvironments } from 'plaid';
 import { parse } from 'cookie';
-import { PrismaClient, Prisma } from '@prisma/client';
 
 const configuration = new Configuration({
   basePath: PlaidEnvironments[process.env.PLAID_ENV!],
