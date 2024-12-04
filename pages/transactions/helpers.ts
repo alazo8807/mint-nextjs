@@ -1,3 +1,5 @@
+import { plaidSyncCursorRepository } from "@/lib/repositories/plaidSyncCursorRepository";
+
 // fetchTransactions calls get-transactions api using the accessToken for plaid
 export const fetchTransactions = async (accessToken: string | null) => {
   if (!accessToken) {
@@ -21,9 +23,17 @@ export const fetchTransactions = async (accessToken: string | null) => {
 
 // syncTransactions calls transactions-sync api.
 export const syncTransactions = async () => {
+  // get itemId for user
+  const userId = 'alazotest'; // TODO: get current user once implemented.
+  const itemIds = await plaidSyncCursorRepository.getItemIdsForUser(userId);
   const response = await fetch('/api/plaid/transactions-sync', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' }
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      // For now there is only 1 itemId. If multiple accounts associated with the user,
+      // then we need to get the right itemId.
+      itemId: itemIds[0], 
+    })
   });
 
   const data = await response.json();

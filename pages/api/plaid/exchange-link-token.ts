@@ -1,6 +1,8 @@
-// /pages/api/exchange-token.ts
+// /pages/api/exchange-link-token.ts
+import { plaidSyncCursorRepository } from '@/lib/repositories/plaidSyncCursorRepository';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { Configuration, PlaidApi, PlaidEnvironments } from 'plaid';
+
 
 const configuration = new Configuration({
   basePath: PlaidEnvironments[process.env.PLAID_ENV!],
@@ -23,6 +25,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     const response = await client.itemPublicTokenExchange({ public_token });
+
+    // Save the access token and item ID
+    const { access_token, item_id } = response.data;
+    await plaidSyncCursorRepository.create(req.body.userId, item_id, access_token);
+
     res.status(200).json(response.data);
   } catch (error) {
     console.error(error);

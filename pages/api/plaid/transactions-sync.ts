@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { Configuration, PlaidApi, PlaidEnvironments } from 'plaid';
 import { parse } from 'cookie';
+import { plaidSyncCursorRepository } from '@/lib/repositories/plaidSyncCursorRepository';
 
 const configuration = new Configuration({
   basePath: PlaidEnvironments[process.env.PLAID_ENV!],
@@ -12,9 +13,7 @@ const configuration = new Configuration({
   },
 });
 
-const plaidClient = new PlaidApi(configuration); 
-
-const db = new Map<string, string | null>(); // TODO: Save in db
+const plaidClient = new PlaidApi(configuration);
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
@@ -26,20 +25,29 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(401).json({ error: 'Access token not found' });
       }
 
-      const nextCursor = db.get(accessToken) || null
+      // get plaidSyncCursor data for itemId received.
+      const { itemId } = req.body;
+      if (!itemId) {
+          return res.status(400).json({ error: 'itemId is required' });
+      }
+      const syncData = await plaidSyncCursorRepository.getSyncData(itemId);
+      if (!syncData) {
+          throw new Error("Sync data not found for this item");
+      }
+      const { cursor: nextCursor } = syncData;
 
       // Call the transactions.sync endpoint
       const response = await plaidClient.transactionsSync({
         access_token: accessToken,
-        // cursor: nextCursor || "",
-        cursor: "", // TODO: use cursor empty to get all transactions. Use cursor once we have transactions persisted
+        cursor: nextCursor || "", // WARN: Empty cursor will retrieve all historical transactions.
         options: {
           include_original_description: true
         }
       });
 
       // Update the next cursor for future syncs
-      db.set(accessToken, response.data.next_cursor);
+      const { next_cursor } = response.data;
+      await plaidSyncCursorRepository.updateCursor(itemId, next_cursor);
 
       // Return the fetched transactions
       res.status(200).json({

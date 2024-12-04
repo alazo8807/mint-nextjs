@@ -16,7 +16,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         take: ITEMS_PER_PAGE,
       });
 
-        // Get the total count of transactions to calculate total pages
+      // Get the total count of transactions to calculate total pages
       const totalTransactions = await prisma.transaction.count();
       const totalPages = Math.ceil(totalTransactions / ITEMS_PER_PAGE);
 
@@ -30,6 +30,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   } else if (req.method === 'POST') {
     const { transactions } = req.body;
 
+    // deduplicate any possible existing transaction
     const existingTransactions = await prisma.transaction.findMany();
     const newTransactions = transactions.filter(
       (t) => !existingTransactions.some((m: { id: string }) => m.id === t.transaction_id)
@@ -68,8 +69,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   } else if (req.method === 'PUT') {
     const { transactions } = req.body;
     try {
+      // deduplicate 
       const existingTransactions = await prisma.transaction.findMany();
       const updatedTransactions = [...existingTransactions.map((t) => transactions.find((m: { transaction_id: string; }) => m.transaction_id === t.id) || t)]
+      
       await prisma.transaction.updateMany({
         data: updatedTransactions as Prisma.TransactionCreateManyInput[],
       });

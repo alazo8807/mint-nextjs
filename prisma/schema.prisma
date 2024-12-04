@@ -33,4 +33,14 @@ model Transaction {
   updatedAt          DateTime @updatedAt
 }
 
+model PlaidSyncCursor {
+  id           Int      @id @default(autoincrement())
+  userId       String   // Associate with your app's user (e.g., UUID or email)
+  itemId       String   @unique // Plaid Item ID, unique per account
+  accessToken  String   // Current access token
+  cursor       String?  // Cursor for incremental sync
+  lastSyncedAt DateTime @default(now()) // Track the last sync time
+}
+
+
 

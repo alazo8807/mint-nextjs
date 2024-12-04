@@ -20,7 +20,7 @@ const PlaidLinkComponent: React.FC<{ onAccessToken: (token: string) => void }> =
     const response = await fetch('/api/plaid/exchange-link-token', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ public_token: publicToken }),
+      body: JSON.stringify({ public_token: publicToken, userId: "alazotest" }),
     });
     const data = await response.json();
     console.log('Access Token:', data.access_token);
