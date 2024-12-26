@@ -41,6 +41,3 @@ model PlaidSyncCursor {
   cursor       String?  // Cursor for incremental sync
   lastSyncedAt DateTime @default(now()) // Track the last sync time
 }
-
-
-

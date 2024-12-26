@@ -20,6 +20,60 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+
+## Setting Up the Database on a New Device
+
+Follow these steps to set up the database when working on a new device:
+
+### 1. Install Dependencies
+Run the following command to install all required dependencies:
+
+```bash
+npm install
+```
+
+### 2. Set Up Environment Variables
+Ensure the `.env` file exists in the root of your project with the correct `DATABASE_URL`. For SQLite, it should look like this:
+
+```env
+DATABASE_URL="file:./dev.db"
+```
+
+If you are using a different database (e.g., PostgreSQL, MySQL), update the `DATABASE_URL` accordingly.
+
+
+### 3. Run Migrations
+Apply the existing migrations to set up the database schema:
+
+```bash
+npx prisma migrate deploy
+```
+
+This command ensures the database structure matches the schema defined in the project.
+
+
+### 4. Generate the Prisma Client
+Regenerate the Prisma Client to ensure it matches the current schema:
+
+```bash
+npx prisma generate
+```
+
+
+### 5. Verify the Database (Optional)
+To verify the database setup, you can use Prisma Studio:
+
+```bash
+npx prisma studio
+```
+
+This opens a web interface where you can view and edit the database data.
+
+
+Your database is now set up and ready to use!
+
+
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
