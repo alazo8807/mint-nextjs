@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { Header } from "@/components/layout/header";
 import { TransactionFilters } from "@/components/transactions/transaction-filters";
+import { PlaidConnectionBanner } from "@/components/banners/plaid-connection-banner";
 
 type Transaction = {
   id: number;
@@ -31,6 +32,7 @@ export default function TransactionsPage({
   const [searchTerm, setSearchTerm] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>("date");
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
+  const [isPlaidConnected, setIsPlaidConnected] = useState(false) 
 
   const sortedTransactions = [...transactions].sort((a, b) => {
     if (a[sortKey] < b[sortKey]) return sortOrder === "asc" ? -1 : 1;
@@ -69,6 +71,7 @@ export default function TransactionsPage({
     <div className="min-h-screen bg-gray-50">
       <Header />
       <main className="container mx-auto py-6 px-4">
+        {!isPlaidConnected && <PlaidConnectionBanner />}
         <div className="flex flex-col space-y-8">
           <div className="flex justify-between items-center">
             <h1 className="text-3xl font-bold text-gray-900">Transactions</h1>

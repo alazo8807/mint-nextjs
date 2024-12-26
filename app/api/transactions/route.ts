@@ -1,15 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient, Prisma } from "@prisma/client";
+import { fakeTransactions } from "@/mock/fakeTransactions";
 
 const prisma = new PrismaClient();
 const ITEMS_PER_PAGE = 10; // Set the number of items per page
 
 export async function GET(req: NextRequest, res: NextResponse) {
-  console.log("Received request");
   const searchParams = req.nextUrl.searchParams
+  const useFakeTransactions = searchParams.get('fake');
   const page = searchParams.get('page') || '1';
   const pageNumber = parseInt(page as string, 10);
   const skip = (pageNumber - 1) * ITEMS_PER_PAGE;
+
+  if (useFakeTransactions) {
+    return NextResponse.json({ transactions: [...fakeTransactions]}, { status: 200 });
+  }
 
   try {
     const transactions = await prisma.transaction.findMany({
@@ -20,8 +25,6 @@ export async function GET(req: NextRequest, res: NextResponse) {
     // Get the total count of transactions to calculate total pages
     const totalTransactions = await prisma.transaction.count();
     const totalPages = Math.ceil(totalTransactions / ITEMS_PER_PAGE);
-
-    console.log("returning response");
     return NextResponse.json({ transactions, totalPages, currentPage: pageNumber }, {status: 200});
   } catch (error) {
     console.error(`Error fetching transactions:, ${error}`);
