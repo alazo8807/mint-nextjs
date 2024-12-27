@@ -5,6 +5,8 @@ import Link from "next/link";
 import {
   PlusCircle,
   ArrowUpDown,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { TransactionFilters } from "@/components/transactions/transaction-filters";
 import { PlaidConnectionBanner } from "@/components/banners/plaid-connection-banner";
@@ -23,11 +25,20 @@ type SortOrder = "asc" | "desc";
 
 type TransactionsTableProps = {
   initialTransactions: Transaction[];
-  isSyncing?: boolean;
+  currentPage: number;
+  totalPages: number;
+  totalTransactions: number;
+  onPageChange: (page: number) => void;  
 }
 
+const ITEMS_PER_PAGE = 10;
+
 export default function TransactionsTable({
-  initialTransactions, isSyncing, 
+  initialTransactions, 
+  currentPage,
+  totalPages,
+  totalTransactions,
+  onPageChange,
 }: TransactionsTableProps) {
   const [transactions, setTransactions] = useState(initialTransactions);
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -77,6 +88,76 @@ export default function TransactionsTable({
     </th>
   );
 
+  const generatePaginationButtons = () => {
+    const buttons = [];
+    const maxVisibleButtons = 4;
+    const halfMaxVisibleButtons = Math.floor(maxVisibleButtons / 2);
+
+    let startPage = Math.max(1, currentPage - halfMaxVisibleButtons);
+    let endPage = Math.min(totalPages, startPage + maxVisibleButtons - 1);
+
+    if (endPage - startPage + 1 < maxVisibleButtons) {
+      startPage = Math.max(1, endPage - maxVisibleButtons + 1);
+    }
+
+    if (startPage > 1) {
+      buttons.push(
+        <button
+          key={1}
+          onClick={() => onPageChange(1)}
+          className="relative inline-flex items-center px-4 py-2 border text-sm font-medium bg-white border-gray-300 text-gray-500 hover:bg-gray-50"
+        >
+          1
+        </button>
+      );
+      if (startPage > 2) {
+        buttons.push(
+          <span key="start-ellipsis" className="relative inline-flex items-center px-4 py-2 border text-sm font-medium bg-white border-gray-300 text-gray-700">
+            ...
+          </span>
+        );
+      }
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      buttons.push(
+        <button
+          key={i}
+          onClick={() => onPageChange(i)}
+          className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+            currentPage === i
+              ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
+              : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+          }`}
+        >
+          {i}
+        </button>
+      );
+    }
+
+    if (endPage < totalPages) {
+      if (endPage < totalPages - 1) {
+        buttons.push(
+          <span key="end-ellipsis" className="relative inline-flex items-center px-4 py-2 border text-sm font-medium bg-white border-gray-300 text-gray-700">
+            ...
+          </span>
+        );
+      }
+      buttons.push(
+        <button
+          key={totalPages}
+          onClick={() => onPageChange(totalPages)}
+          className="relative inline-flex items-center px-4 py-2 border text-sm font-medium bg-white border-gray-300 text-gray-500 hover:bg-gray-50"
+        >
+          {totalPages}
+        </button>
+      );
+    }
+
+    return buttons;
+  };
+
+
   return (
       <div className="mx-auto py-6">
         {!isPlaidConnected && (
@@ -99,6 +180,7 @@ export default function TransactionsTable({
             </div>
             <div className="overflow-x-auto">
               {sortedTransactions.length > 0 ? (
+                <>
                 <table className="w-full">
                   <thead className="bg-gray-50">
                     <tr>
@@ -139,6 +221,54 @@ export default function TransactionsTable({
                     ))}
                   </tbody>
                 </table>
+                <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+                <div className="flex-1 flex justify-between sm:hidden">
+                  <button
+                    onClick={() => onPageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                  >
+                    Previous
+                  </button>
+                  <button
+                    onClick={() => onPageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                  >
+                    Next
+                  </button>
+                </div>
+                <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                  <div>
+                    <p className="text-sm text-gray-700">
+                      Showing <span className="font-medium">{(currentPage - 1) * ITEMS_PER_PAGE + 1}</span> to <span className="font-medium">{Math.min(currentPage * ITEMS_PER_PAGE, totalTransactions)}</span> of{' '}
+                      <span className="font-medium">{totalTransactions}</span> results
+                    </p>
+                  </div>
+                  <div>
+                    <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                      <button
+                        onClick={() => onPageChange(currentPage - 1)}
+                        disabled={currentPage === 1}
+                        className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                      >
+                        <span className="sr-only">Previous</span>
+                        <ChevronLeft className="h-5 w-5" aria-hidden="true" />
+                      </button>
+                      {generatePaginationButtons()}
+                      <button
+                        onClick={() => onPageChange(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                        className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                      >
+                        <span className="sr-only">Next</span>
+                        <ChevronRight className="h-5 w-5" aria-hidden="true" />
+                      </button>
+                    </nav>
+                  </div>
+                </div>
+              </div>
+              </>
               ) : (
                 <div className="text-center py-16">
                   <PlusCircle className="mx-auto h-12 w-12 text-gray-400" />

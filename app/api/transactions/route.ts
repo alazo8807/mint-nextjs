@@ -25,7 +25,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
     // Get the total count of transactions to calculate total pages
     const totalTransactions = await prisma.transaction.count();
     const totalPages = Math.ceil(totalTransactions / ITEMS_PER_PAGE);
-    return NextResponse.json({ transactions, totalPages, currentPage: pageNumber }, {status: 200});
+    return NextResponse.json({ transactions, totalPages, currentPage: pageNumber, totalTransactions }, {status: 200});
   } catch (error) {
     console.error(`Error fetching transactions:, ${error}`);
     return NextResponse.json({message: "Error fetching transactions"}, { status: 500 });
