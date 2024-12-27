@@ -1,16 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
-  CalendarIcon,
-  ChevronDownIcon,
   PlusCircle,
   ArrowUpDown,
 } from "lucide-react";
-import { Header } from "@/components/layout/header";
 import { TransactionFilters } from "@/components/transactions/transaction-filters";
 import { PlaidConnectionBanner } from "@/components/banners/plaid-connection-banner";
+import { checkAccessToken } from "@/lib/auth/api";
 
 type Transaction = {
   id: number;
@@ -23,17 +21,29 @@ type Transaction = {
 type SortKey = "date" | "description" | "category" | "amount";
 type SortOrder = "asc" | "desc";
 
-export default function TransactionsPage({
-  initialTransactions,
-}: {
+type TransactionsTableProps = {
   initialTransactions: Transaction[];
-}) {
+  isSyncing?: boolean;
+}
+
+export default function TransactionsTable({
+  initialTransactions, isSyncing, 
+}: TransactionsTableProps) {
   const [transactions, setTransactions] = useState(initialTransactions);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState<string>("");
   const [sortKey, setSortKey] = useState<SortKey>("date");
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
-  const [isPlaidConnected, setIsPlaidConnected] = useState(false) 
+  const [isPlaidConnected, setIsPlaidConnected] = useState<boolean>(true);
 
+  // Check if the plaid's 'access_token' cookie is set
+  useEffect(() => {
+    const checkIsPlaidConnected = async () => {
+      const ok = await checkAccessToken();
+      setIsPlaidConnected(ok); // The cookie is set
+    };
+    checkIsPlaidConnected();
+  }, []);
+  
   const sortedTransactions = [...transactions].sort((a, b) => {
     if (a[sortKey] < b[sortKey]) return sortOrder === "asc" ? -1 : 1;
     if (a[sortKey] > b[sortKey]) return sortOrder === "asc" ? 1 : -1;
@@ -68,25 +78,13 @@ export default function TransactionsPage({
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header />
-      <main className="container mx-auto py-6 px-4">
-        {!isPlaidConnected && <PlaidConnectionBanner />}
+      <div className="mx-auto py-6">
+        {!isPlaidConnected && (
+          <PlaidConnectionBanner
+            onConnected={() => setIsPlaidConnected(true)}
+          />
+        )}
         <div className="flex flex-col space-y-8">
-          <div className="flex justify-between items-center">
-            <h1 className="text-3xl font-bold text-gray-900">Transactions</h1>
-            <div className="flex items-center space-x-2">
-              <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                <CalendarIcon className="h-4 w-4" />
-                Last 30 Days
-                <ChevronDownIcon className="h-4 w-4" />
-              </button>
-              <button className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                Add Transaction
-              </button>
-            </div>
-          </div>
-
           <div className="bg-white shadow rounded-lg overflow-hidden">
             <div className="p-6 border-b border-gray-200">
               <div className="flex items-center justify-between">
@@ -167,7 +165,6 @@ export default function TransactionsPage({
             </div>
           </div>
         </div>
-      </main>
-    </div>
+      </div>
   );
 }

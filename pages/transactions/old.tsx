@@ -3,7 +3,7 @@ import PlaidLinkComponent from "@/components/PlaidLinkComponent";
 import TransactionList from "@/components/TransactionTable";
 import '@/app/globals.css';
 import Link from "next/link";
-import { saveAccessToken, checkAccessToken, syncTransactions } from "./helpers";
+import { saveAccessToken, checkAccessToken, syncTransactions } from "../../lib/plaid/api";
 import SyncBtn from "./SyncBtn";
 
 // import GetTransactionsButton from "@/components/GetTransactionsBtn";

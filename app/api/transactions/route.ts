@@ -34,62 +34,82 @@ export async function GET(req: NextRequest, res: NextResponse) {
   }
 }
 
-// export async function POST(req: NextRequest, res: NextResponse) {
-//   const { transactions } = req.body;
-//   try {
-//     // deduplicate
-//     const existingTransactions = await prisma.transaction.findMany();
-//     const updatedTransactions = [...existingTransactions.map((t) => transactions.find((m: { transaction_id: string; }) => m.transaction_id === t.id) || t)]
+export async function PUT(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const { transactions } = body;
 
-//     await prisma.transaction.updateMany({
-//       data: updatedTransactions as Prisma.TransactionCreateManyInput[],
-//     });
+    // Deduplicate transactions
+    const existingTransactions = await prisma.transaction.findMany();
+    const updatedTransactions = [
+      ...existingTransactions.map(
+        (t) =>
+          transactions.find(
+            (m: { transaction_id: string }) => m.transaction_id === t.id
+          ) || t
+      ),
+    ];
 
-//     res.status(200).json("success");
-//   } catch (error) {
-//     // console.log('Error saving transactions:', error);
-//     res.status(500).json({ error: `Error saving transactions: ${error}` });
-//   }
+    await prisma.transaction.updateMany({
+      data: updatedTransactions as Prisma.TransactionCreateManyInput[],
+    });
 
-// }
+    return NextResponse.json({ message: "success" });
+  } catch (error) {
+    console.error("Error saving transactions:", error);
+    return NextResponse.json(
+      { error: `Error saving transactions: ${error}` },
+      { status: 500 }
+    );
+  }
+}
 
-// export async function POST(req: NextRequest, res: NextResponse) {
-// const { transactions } = req.body;
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const { transactions } = body;
 
-//     // deduplicate any possible existing transaction
-//     const existingTransactions = await prisma.transaction.findMany();
-//     const newTransactions = transactions.filter(
-//       (t) => !existingTransactions.some((m: { id: string }) => m.id === t.transaction_id)
-//     );
+    // Deduplicate any possible existing transactions
+    const existingTransactions = await prisma.transaction.findMany();
+    const newTransactions = transactions.filter(
+      (t: { transaction_id: string }) =>
+        !existingTransactions.some(
+          (m: { id: string }) => m.id === t.transaction_id
+        )
+    );
 
-//     // No new transactions received. Don't send unnecessary request to db
-//     if (newTransactions.length !== transactions.length) {
-//       console.warn("Some or all transactions received already existed.");
-//     }
+    // No new transactions received
+    if (newTransactions.length !== transactions.length) {
+      console.warn("Some or all transactions received already existed.");
+    }
 
-//     try {
-//       await prisma.transaction.createMany({
-//         data: newTransactions.map(txn => ({
-//           id: txn.transaction_id,
-//           transactionId: txn.transaction_id,
-//           accountId: txn.account_id,
-//           amount: txn.amount,
-//           currency: txn.iso_currency_code,
-//           unofficialCurrency: txn.unofficial_currency_code || null,
-//           date: new Date(txn.date),
-//           authorizedDate: txn.authorized_date ? new Date(txn.authorized_date) : null,
-//           name: txn.name,
-//           merchantName: txn.merchant_name || null,
-//           pending: txn.pending,
-//           pendingTransactionId: txn.pending_transaction_id || null,
-//           category: txn.category ? JSON.stringify(txn.category) : null,
-//           paymentChannel: txn.payment_channel,
-//         })) as Prisma.TransactionCreateManyInput[],
-//       });
+    await prisma.transaction.createMany({
+      data: newTransactions.map((txn: any) => ({
+        id: txn.transaction_id,
+        transactionId: txn.transaction_id,
+        accountId: txn.account_id,
+        amount: txn.amount,
+        currency: txn.iso_currency_code,
+        unofficialCurrency: txn.unofficial_currency_code || null,
+        date: new Date(txn.date),
+        authorizedDate: txn.authorized_date
+          ? new Date(txn.authorized_date)
+          : null,
+        name: txn.name,
+        merchantName: txn.merchant_name || null,
+        pending: txn.pending,
+        pendingTransactionId: txn.pending_transaction_id || null,
+        category: txn.category ? JSON.stringify(txn.category) : null,
+        paymentChannel: txn.payment_channel,
+      })) as Prisma.TransactionCreateManyInput[],
+    });
 
-//       res.status(200).json("success");
-//     } catch (error) {
-//       console.log(`Error saving transactions: ${error}`);
-//       res.status(500).json({ error: `Error saving transactions: ${error}` });
-//     }
-//   }
+    return NextResponse.json({ message: "success" });
+  } catch (error) {
+    console.error("Error saving transactions:", error);
+    return NextResponse.json(
+      { error: `Error saving transactions: ${error}` },
+      { status: 500 }
+    );
+  }
+}

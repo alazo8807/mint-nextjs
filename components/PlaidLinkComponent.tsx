@@ -23,6 +23,12 @@ const PlaidLinkComponent: React.FC<{ onAccessToken: (token: string) => void }> =
       body: JSON.stringify({ public_token: publicToken, userId: "alazotest" }),
     });
     const data = await response.json();
+
+    // // TODO: Save the access token and item ID
+    // const { access_token, item_id } = response.data;
+    // await plaidSyncCursorRepository.create(userId, item_id, access_token);
+
+    
     console.log('Access Token:', data.access_token);
     onAccessToken(data.access_token)
   };

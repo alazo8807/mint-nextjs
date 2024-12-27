@@ -1,35 +1,49 @@
-import TransactionsPage from "./TransactionsPage";
+"use client";
 
-async function fetchTransactions(page: number) {
-  try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"; // Use absolute URL on the server
-    const response = await fetch(`${baseUrl}/api/transactions?page=${page}`, { cache: 'no-store' });
-    if (!response.ok) {
-      throw new Error('Failed to fetch transactions');
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import TransactionsTable from "./TransactionsTable";
+import TransactionsActions from "./TransactionsActions";
+import { fetchTransactions } from "@/lib/transactions/api";
+
+export default function TransactionsContainer() {
+  const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchAndSetTransactions = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetchTransactions(1);
+      setTransactions(response.transactions);
+    } catch (err) {
+      setError("Failed to fetch transactions.");
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
-    
-    return await response.json();
-    
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
-    console.error(error);
-  }
-}
+  };
 
-export default async function TransactionsContainer({ searchParams }: { searchParams: { [key: string]: string } }) {
-  let response;
-  try {
-    response = await fetchTransactions(1);
-  } catch (error) {
-    console.error(`Failed to fetch transactions: ${error}`);
-    return <div>Error fetching transactions</div>;
+  useEffect(() => {
+    fetchAndSetTransactions();
+  }, []);
+
+  if (loading) {
+    return <div className="font-bold text-gray-900">Loading transactions...</div>;
   }
 
-  if (!response) {
-    return <div>No transactions found</div>;
+  if (error) {
+    return <div className="font-bold text-gray-900">{error}</div>;
   }
 
-  console.log({response})
-  const { transactions, currentPage: currentPageResponse, totalPages: totalPagesResponse } = response;
-  return <TransactionsPage initialTransactions={transactions} />;
+  return (
+    <>
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold text-gray-900">Transactions</h1>
+        <TransactionsActions onSyncComplete={() => fetchAndSetTransactions()}/>
+      </div>
+      <TransactionsTable initialTransactions={transactions} />
+    </>
+  );
 }

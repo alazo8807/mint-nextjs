@@ -38,8 +38,9 @@ Ensure the `.env` file exists in the root of your project with the correct `DATA
 ```env
 DATABASE_URL="file:./dev.db"
 ```
+NOTE: prisma doesn't seem to be able to read .env.local, so make sure the `DATABASE_URL` is set up in .env
 
-If you are using a different database (e.g., PostgreSQL, MySQL), update the `DATABASE_URL` accordingly.
+If you are using a different database file (e.g., prod.db, sandbox.db), update the `DATABASE_URL` accordingly.
 
 
 ### 3. Run Migrations

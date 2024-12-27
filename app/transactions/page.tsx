@@ -1,5 +1,13 @@
+import { Header } from "@/components/layout/header";
 import TransactionsContainer from "./TransactionsContainer";
 
-export default async function Transactions({searchParams}: {searchParams: { [key: string]: string }}) {
-  return <TransactionsContainer searchParams={searchParams}/>;
+export default async function Transactions() {
+  return (
+    <main className="min-h-screen bg-gray-50">
+      <Header />
+      <div className="container mx-auto py-6 px-4">
+        <TransactionsContainer />
+      </div>
+    </main>
+  );
 }

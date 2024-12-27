@@ -1,4 +1,4 @@
-import { NextApiRequest, NextApiResponse } from 'next';
+import { NextRequest, NextResponse } from 'next/server';
 import { Configuration, PlaidApi, PlaidEnvironments, Products, CountryCode } from 'plaid';
 
 const configuration = new Configuration({
@@ -12,8 +12,9 @@ const configuration = new Configuration({
 });
 const client = new PlaidApi(configuration);
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export async function GET() {
   try {
+    console.log({secret: process.env.PLAID_SECRET})
     const response = await client.linkTokenCreate({
       user: { client_user_id: 'user-id' }, // Replace with your unique user ID
       client_name: 'my-mint',
@@ -21,9 +22,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       country_codes: ['CA'] as CountryCode[],
       language: 'en',
     });
-    res.status(200).json(response.data);
+
+    return NextResponse.json(response.data, { status: 200 });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Unable to create link token' });
+    console.error('Error creating Plaid link token:', error);
+    return NextResponse.json({ error: 'Unable to create link token' }, { status: 500 });
   }
+}
+
+export function POST() {
+  return NextResponse.json({ error: 'Method not allowed' }, { status: 405 });
 }
