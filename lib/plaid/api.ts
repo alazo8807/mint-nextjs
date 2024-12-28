@@ -67,3 +67,49 @@ export const fetchTransactions = async (accessToken: string | null) => {
   console.log('Transactions:', data.transactions);
   return data.transactions;
 };
+
+
+// fetchLinkToken gets a public token to start link connection flow
+export const fetchLinkToken = async () => {
+  try {
+      const response = await fetch("/api/plaid/create-link-token");
+      if (!response.ok) {
+      throw new Error("Failed to fetch link token");
+      }
+      const data = await response.json();
+      const { link_token } = data;
+      if (!link_token) {
+      throw new Error("empty or invalid link token received");
+      }
+
+      return link_token;
+  } catch (error) {
+      console.error("Error fetching link token:", error);
+  }
+
+  return null;
+};
+
+
+// exchangeLinkToken exchanges the public token for an access_token. 
+// The access_token is persisted in the server side and will be used to communicate with plaid.
+export const exchangeLinkToken = async (publicToken: string) => {
+  try {
+    const response = await fetch("/api/plaid/exchange-link-token", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      cache: "no-store",
+      body: JSON.stringify({ public_token: publicToken }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to exchange link token");
+    }
+
+    const respJson = await response.json();
+    console.log({respJson})
+    return respJson;
+  } catch (error) {
+    console.error("Error exchanging link token:", error);
+  }
+}

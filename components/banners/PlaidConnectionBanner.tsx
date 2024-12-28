@@ -1,5 +1,6 @@
 "use client";
 
+import { exchangeLinkToken, fetchLinkToken } from "@/lib/plaid/api";
 import { AlertCircle } from "lucide-react";
 import { useState, useEffect } from "react";
 import { usePlaidLink } from "react-plaid-link";
@@ -13,43 +14,12 @@ export function PlaidConnectionBanner({ onConnected }: BannerProps) {
 
   // Fetch the Plaid link token
   useEffect(() => {
-    const fetchLinkToken = async () => {
-      try {
-        const response = await fetch("/api/plaid/create-link-token");
-        if (!response.ok) {
-          throw new Error("Failed to fetch link token");
-        }
-        const data = await response.json();
-        setLinkToken(data.link_token);
-      } catch (error) {
-        console.error("Error fetching link token:", error);
-      }
-    };
-    fetchLinkToken();
-  }, []);
-
-  // exchangeLinkToken exchanges the public token for an access_token. The access_token
-  // is persisted in the server side and will be used to communicate with plaid.
-  const exchangeLinkToken = async (publicToken: string) => {
-    try {
-      const response = await fetch("/api/plaid/exchange-link-token", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        cache: "no-store",
-        body: JSON.stringify({ public_token: publicToken }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to exchange link token");
-      }
-
-      const respJson = await response.json();
-      console.log({respJson})
-      return respJson;
-    } catch (error) {
-      console.error("Error exchanging link token:", error);
+    const getAndSetLinkToken = async () => {
+      const linkToken = await fetchLinkToken();
+      setLinkToken(linkToken);
     }
-  }
+    getAndSetLinkToken();
+  }, []);
 
   // Handle the onSuccess logic
   const onSuccess = async (publicToken: string, _metadata: object) => {
