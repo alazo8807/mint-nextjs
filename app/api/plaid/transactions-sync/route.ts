@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { Configuration, PlaidApi, PlaidEnvironments } from 'plaid';
 import { parse } from 'cookie';
 import { plaidSyncCursorRepository } from '@/lib/repositories/plaidSyncCursorRepository';
+import { COOKIE_NAME } from '@/lib/constants';
 
 const configuration = new Configuration({
   basePath: PlaidEnvironments[process.env.PLAID_ENV!],
@@ -20,7 +21,7 @@ export async function POST(req: NextRequest) {
     // Parse cookies from the request
     const cookieHeader = req.headers.get('cookie') || '';
     const cookies = parse(cookieHeader);
-    const accessToken = cookies.access_token;
+    const accessToken = cookies[COOKIE_NAME];
     if (!accessToken) {
       return NextResponse.json({ error: 'Access token not found' }, { status: 401 });
     }

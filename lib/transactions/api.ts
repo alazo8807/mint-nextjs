@@ -1,4 +1,8 @@
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"; // Use absolute URL on the server
+/**
+ * Helper functions to interact with /api/transactions endpoints.
+ */
+
+import { BASE_URL } from "@/lib/constants";
 
 export async function fetchTransactions(page: number) {
   try {

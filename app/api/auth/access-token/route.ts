@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { serialize } from 'cookie';
+import { COOKIE_NAME } from '@/lib/constants';
 
 export async function GET(req: NextRequest) {
-  const accessToken = req.cookies.get(`plaid_${process.env.PLAID_ENV}_access_token`);
+  const accessToken = req.cookies.get(COOKIE_NAME);
 
   if (accessToken) {
     return NextResponse.json({ message: 'Token is present' }, { status: 200 });
@@ -20,9 +21,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Access token is required' }, { status: 400 });
     }
 
-    // TODO: save the identifier with the proper env. e.g access_token_sandbox, access_token_production
     // Serialize the cookie
-    const cookie = serialize(`plaid_${process.env.PLAID_ENV}_access_token`, access_token, {
+    const cookie = serialize(COOKIE_NAME, access_token, {
       httpOnly: true, // Prevents client-side JS access
       secure: process.env.NODE_ENV === 'production', // Ensures it's only sent over HTTPS in production
       maxAge: 60 * 60 * 24 * 7, // 1 week
