@@ -20,6 +20,27 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Pre-requisites
+### 1. Set up a plaid account.
+Go to plaid.com and create a developer account. You will need a `client_id` and `secret` to set up your environment to communicater with Plaid apis
+
+## Setting up local env
+### 1. Create new .env file
+In the root folder, create two new files called `.env` and `.env.local`.
+### 2. Add env values to .env.local file
+This are the values that will be loaded when running the application locally on your device.
+```
+NEXT_PUBLIC_BASE_URL=http://localhost:3000
+PLAID_CLIENT_ID=your_client_id
+PLAID_SECRET=your_plaid_secret
+PLAID_ENV=plaid_env // sandbox|production
+``` 
+### 3. Add env values to .env file
+In theory you can add all your values in this file but I prefer the separation between local and non local. The only reason adding this file for running local is because prisma looks for the db url in this file when running migrations.
+```
+DATABASE_URL="file:./dev.db"
+```
+I prefer having a separate db for testing agains PLAID sandbox. Use the corresponding db file in your case.
 
 ## Setting Up the Database on a New Device
 

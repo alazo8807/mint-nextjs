@@ -1,17 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Configuration, PlaidApi, PlaidEnvironments } from 'plaid';
 import { plaidSyncCursorRepository } from '@/lib/repositories/plaidSyncCursorRepository';
+import { createPlaidApiClient } from '@/lib/plaid/api';
 
-const configuration = new Configuration({
-  basePath: PlaidEnvironments[process.env.PLAID_ENV!],
-  baseOptions: {
-    headers: {
-      'PLAID-CLIENT-ID': process.env.PLAID_CLIENT_ID!,
-      'PLAID-SECRET': process.env.PLAID_SECRET!,
-    },
-  },
-});
-const client = new PlaidApi(configuration);
+const client = createPlaidApiClient();
 
 export async function POST(req: NextRequest) {
   try {
@@ -24,9 +15,12 @@ export async function POST(req: NextRequest) {
 
     // Exchange the public token for an access token and item ID
     const response = await client.itemPublicTokenExchange({ public_token });
-
-    // // Save accessToken associated to item_id in SyncCursor table to be used as cursor's key
-    // await plaidSyncCursorRepository.create(userId, item_id, access_token);
+    
+    // Save accessToken associated to item_id in SyncCursor table to be used as cursor's key
+    // TODO: we should extract this in a separate endpoint for better separation of concerns and 
+    // let the caller update the cursor.
+    const {item_id, access_token} = response.data;
+    await plaidSyncCursorRepository.create('alazotest', item_id, access_token );
 
     return NextResponse.json(response.data, { status: 200 });
   } catch (error) {

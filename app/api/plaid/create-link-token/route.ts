@@ -1,16 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Configuration, PlaidApi, PlaidEnvironments, Products, CountryCode } from 'plaid';
+import {Products, CountryCode } from 'plaid';
+import { createPlaidApiClient } from '@/lib/plaid/api';
 
-const configuration = new Configuration({
-  basePath: PlaidEnvironments[process.env.PLAID_ENV!],
-  baseOptions: {
-    headers: {
-      'PLAID-CLIENT-ID': process.env.PLAID_CLIENT_ID!,
-      'PLAID-SECRET': process.env.PLAID_SECRET!,
-    },
-  },
-});
-const client = new PlaidApi(configuration);
+const client = createPlaidApiClient();
 
 export async function GET() {
   try {

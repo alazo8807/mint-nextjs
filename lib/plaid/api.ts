@@ -3,6 +3,27 @@
  */
 
 import { BASE_URL } from "@/lib/constants";
+import { Configuration, PlaidApi, PlaidEnvironments } from "plaid";
+
+export function createPlaidConfiguration(): Configuration {
+  if (!process.env.PLAID_ENV || !process.env.PLAID_CLIENT_ID || !process.env.PLAID_SECRET) {
+    throw new Error('Missing required environment variables for Plaid configuration.');
+  }
+
+  return new Configuration({
+    basePath: PlaidEnvironments[process.env.PLAID_ENV],
+    baseOptions: {
+      headers: {
+        'PLAID-CLIENT-ID': process.env.PLAID_CLIENT_ID,
+        'PLAID-SECRET': process.env.PLAID_SECRET,
+      },
+    },
+  });
+}
+
+export function createPlaidApiClient() {
+ return new PlaidApi(createPlaidConfiguration());
+}
 
 // syncTransactions calls transactions-sync api.
 export const syncTransactions = async () => {
@@ -11,10 +32,16 @@ export const syncTransactions = async () => {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
+      cursor: '',
     })
   });
 
   const data = await response.json();
+  const { error } = data;
+  if (error) {
+    alert(error);
+  }
+
   console.log('Sync Transactions:', data);
   return data;
 };
