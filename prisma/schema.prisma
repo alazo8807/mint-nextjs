@@ -42,3 +42,16 @@ model PlaidSyncCursor {
   cursor       String?  // Cursor for incremental sync
   lastSyncedAt DateTime @default(now()) // Track the last sync time
 }
+
+model PlaidAccessToken {
+  id           Int      @id @default(autoincrement())
+  userId       String
+  itemId       String
+  accessToken  String
+  refreshToken String?
+  cursor       String?  // Cursor for sync operations
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([userId, itemId])
+}
