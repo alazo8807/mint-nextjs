@@ -7,7 +7,7 @@ const ITEMS_PER_PAGE = 10; // Set the number of items per page
 
 export async function GET(req: NextRequest, res: NextResponse) {
   const searchParams = req.nextUrl.searchParams
-  const useFakeTransactions = searchParams.get('fake');
+  const useFakeTransactions = searchParams.get('fake'); // debug flag to return mock data
   const page = searchParams.get('page') || '1';
   const pageNumber = parseInt(page as string, 10);
   const skip = (pageNumber - 1) * ITEMS_PER_PAGE;
