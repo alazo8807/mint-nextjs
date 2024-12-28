@@ -27,6 +27,7 @@ model Transaction {
   pending            Boolean
   pendingTransactionId String? // Nullable
   category           String?  // Nullable
+  personalFinanceCategoryDetail String?
   paymentChannel     String
   transactionType    String?  // Nullable
   createdAt          DateTime @default(now())
