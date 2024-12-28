@@ -1,7 +1,5 @@
 "use client";
 
-import { saveAccessToken } from "@/lib/auth/api";
-import { plaidSyncCursorRepository } from "@/lib/repositories/plaidSyncCursorRepository";
 import { AlertCircle } from "lucide-react";
 import { useState, useEffect } from "react";
 import { usePlaidLink } from "react-plaid-link";
@@ -30,13 +28,15 @@ export function PlaidConnectionBanner({ onConnected }: BannerProps) {
     fetchLinkToken();
   }, []);
 
-  const getAccessToken = async (publicToken: string, userId: string) => {
+  // exchangeLinkToken exchanges the public token for an access_token. The access_token
+  // is persisted in the server side and will be used to communicate with plaid.
+  const exchangeLinkToken = async (publicToken: string) => {
     try {
       const response = await fetch("/api/plaid/exchange-link-token", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         cache: "no-store",
-        body: JSON.stringify({ public_token: publicToken, userId }),
+        body: JSON.stringify({ public_token: publicToken }),
       });
 
       if (!response.ok) {
@@ -53,20 +53,8 @@ export function PlaidConnectionBanner({ onConnected }: BannerProps) {
 
   // Handle the onSuccess logic
   const onSuccess = async (publicToken: string, _metadata: object) => {
-    const userId = "alazotest";
-
-    // get access token for publicToken received
-    const data = await getAccessToken(publicToken, userId);
+    const data = await exchangeLinkToken(publicToken);
     console.log({data})
-    const { access_token, item_id } = data;
-
-    // Save accessToken in session cookie for auth.
-    const result = await saveAccessToken(access_token);
-    if (result.error) {
-      console.error("Error saving access token:", result.error.message);
-    } else {
-      console.log("Access token saved successfully:", result.data);
-    }
 
     onConnected();
   };

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { checkAccessToken } from "@/lib/auth/api";
 import TableHeader from "./TableHeader";
 import TableRow from "./TableRow";
 import Pagination from "./Pagination";
@@ -35,20 +34,11 @@ export default function TransactionsTable({
   totalTransactions,
   onPageChange,
 }: TransactionsTableProps) {
-  const [transactions, setTransactions] = useState(initialTransactions);
+  const [transactions] = useState(initialTransactions);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>("date");
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
   const [isPlaidConnected, setIsPlaidConnected] = useState(true);
-
-  // Check if Plaid is connected
-  useEffect(() => {
-    const checkConnection = async () => {
-      const connected = await checkAccessToken();
-      setIsPlaidConnected(connected);
-    };
-    checkConnection();
-  }, []);
 
   // Handle sorting logic
   const handleSort = (key: SortKey) => {

@@ -1,53 +1,56 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { parse } from 'cookie';
-import { plaidSyncCursorRepository } from '@/lib/repositories/plaidSyncCursorRepository';
-import { COOKIE_NAME } from '@/lib/constants';
 import { createPlaidApiClient } from '@/lib/plaid/api';
 
 const client = createPlaidApiClient();
 
 export async function POST(req: NextRequest) {
   try {
-    // Parse cookies from the request
-    const cookieHeader = req.headers.get('cookie') || '';
-    const cookies = parse(cookieHeader);
-    const accessToken = cookies[COOKIE_NAME];
-    if (!accessToken) {
-      return NextResponse.json({ error: 'Access token not found' }, { status: 401 });
+    // Retrieve the item_id from the request body
+    const { itemId } = await req.json();
+    
+    if (!itemId) {
+      return NextResponse.json({ error: 'Missing item_id' }, { status: 400 });
     }
 
-    // Retrieve the next cursor from the database if there is any.
-    // TODO: we should extract this in a separate endpoint for better separation of concerns and 
-    // let the caller pass the cursor.
-    const userId = 'alazotest'; // TODO: Get from jwt token later
-    const itemIds = await plaidSyncCursorRepository.getItemIdsForUser(userId);
-    if (!itemIds || itemIds.length <= 0) {
-      console.error(`Could not fetch itemIds from PlaidCursorSync table for userId: ${userId}`)
-      throw new Error("Invalid PlaidSyncCursor data");
-    }
-    const itemId = itemIds.length > 0 ? itemIds[0] : ""; // for now there is only 1 itemId per account.
-    const syncCursorData = await plaidSyncCursorRepository.getSyncData(itemId);
-    if (!syncCursorData) {
-      console.error(`Could not fetch syncCursorData for userId: ${userId}`)
-      throw new Error("Invalid PlaidSyncCursor data");
-    }
+    // For now, using a hardcoded userId (to be replaced with JWT logic later)
+    const userId = "test_user_id";
 
-    const cursor = syncCursorData ? syncCursorData.cursor : ""; // Use the stored cursor or empty string
-   
-    // Call the transactions.sync endpoint
-    const response = await client.transactionsSync({
-      access_token: accessToken,
-      cursor: cursor?? "", // Empty cursor will fetch all historical transactions
-      options: {
-        include_original_description: true,
+    // Fetch the access_token and cursor for the given itemId
+    const plaidToken = await prisma?.plaidAccessToken.findUnique({
+      where: {
+        userId_itemId: { userId, itemId },
       },
-      count: 500 // This is the max allowed
     });
 
-    // Save next cursor
+    if (!plaidToken) {
+      console.error(`No token found for userId: ${userId} and itemId: ${itemId}`);
+      return NextResponse.json({ error: 'Invalid item_id or user_id' }, { status: 404 });
+    }
+
+    const accessToken = plaidToken.accessToken;
+    const cursor = plaidToken.cursor ?? "";  // Default to empty string if no cursor is set
+
+    // Call the transactions.sync endpoint with the access_token and cursor
+    const response = await client.transactionsSync({
+      access_token: accessToken,
+      cursor: cursor, // Empty cursor will fetch all historical transactions
+      options: {
+        include_original_description: true, // Needed to include the proper transaction description
+      },
+      count: 500, // This is the max allowed
+    });
+
+    // Save the next_cursor received from the Plaid API
     const nextCursor = response.data.next_cursor || "";
-    await plaidSyncCursorRepository.updateCursor(itemId, nextCursor);
-  
+    await prisma?.plaidAccessToken.update({
+      where: {
+        userId_itemId: { userId, itemId },
+      },
+      data: {
+        cursor: nextCursor,
+      },
+    });
+
     // Return the fetched transactions
     return NextResponse.json({
       added: response.data.added,
@@ -60,4 +63,8 @@ export async function POST(req: NextRequest) {
     console.error('Error with transactions.sync:', error.response?.data || error.message);
     return NextResponse.json({ error: 'Error fetching transactions' }, { status: 500 });
   }
+}
+
+export function GET() {
+  return NextResponse.json({ error: 'Method not allowed' }, { status: 405 });
 }
