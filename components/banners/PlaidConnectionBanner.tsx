@@ -83,7 +83,7 @@ export function PlaidConnectionBanner({ onConnected }: BannerProps) {
         </div>
         <div className="ml-3">
           <p className="text-sm text-yellow-700">
-            Your account is not connected to Plaid. Some features may be limited.
+            Your account is not connected to Plaid. Some features may be limited and the data might not be up to date.
             <button
               onClick={() => open()}
               className="font-medium underline text-yellow-700 hover:text-yellow-600 ml-1"

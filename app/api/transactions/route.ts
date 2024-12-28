@@ -101,6 +101,7 @@ export async function POST(req: NextRequest) {
         pendingTransactionId: txn.pending_transaction_id || null,
         category: txn.category ? JSON.stringify(txn.category) : null,
         paymentChannel: txn.payment_channel,
+        personalFinanceCategoryDetail: txn.personal_finance_category.detailed
       })) as Prisma.TransactionCreateManyInput[],
     });
 

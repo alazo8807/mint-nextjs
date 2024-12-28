@@ -1,4 +1,4 @@
-import { Header } from "@/components/layout/header";
+import { Header } from "@/components/layout/Header";
 import TransactionsContainer from "./TransactionsContainer";
 
 export default async function Transactions() {

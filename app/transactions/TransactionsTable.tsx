@@ -6,13 +6,13 @@ import TableHeader from "./TableHeader";
 import TableRow from "./TableRow";
 import Pagination from "./Pagination";
 import EmptyState from "./EmptyState";
-import { TransactionFilters } from "@/components/transactions/transaction-filters";
-import { PlaidConnectionBanner } from "@/components/banners/plaid-connection-banner";
+import { TransactionFilters } from "@/components/transactions/TransactionFilters";
+import { PlaidConnectionBanner } from "@/components/banners/PlaidConnectionBanner";
 
 type Transaction = {
   id: number;
   date: string;
-  description: string;
+  name: string;
   category: string;
   amount: number;
 };
@@ -63,7 +63,7 @@ export default function TransactionsTable({
   // Filter and sort transactions
   const filteredAndSortedTransactions = transactions
   .filter((txn) =>
-    (txn.description || "").toLowerCase().includes(searchTerm.toLowerCase())
+    (txn.name || "").toLowerCase().includes(searchTerm.toLowerCase())
   )
   .sort((a, b) => {
     if (a[sortKey] < b[sortKey]) return sortOrder === "asc" ? -1 : 1;

@@ -73,7 +73,40 @@ This opens a web interface where you can view and edit the database data.
 
 Your database is now set up and ready to use!
 
+## Adding a migration
 
+### 1. Make Changes to the Schema
+Edit the schema.prisma file in your project directory to reflect the changes you want to make in your database structure. For example:
+
+```
+model User {
+  id    Int     @id @default(autoincrement())
+  name  String
+  email String  @unique
+  age   Int?    // Adding a new optional field
+}
+```
+### 2. Run the Migration Command
+Open your terminal and navigate to your project directory. Then, run: 
+```
+npx prisma migrate dev --name <migration-name>
+```
+NOTE: prisma doesn't seem to be able to read .env.local, so make sure the `DATABASE_URL` is set up in .env
+If you are using a different database file (e.g., prod.db, sandbox.db), update the `DATABASE_URL` accordingly.
+
+### 3. Review the Generated SQL
+Prisma will generate a migration file in the prisma/migrations directory. It contains SQL instructions for applying your changes. Review it to ensure it aligns with your expectations.
+
+### 4. Apply the Migration
+Prisma will automatically apply the migration to your development database. If it doesn’t, you can apply it manually:
+```
+npx prisma migrate deploy
+```
+
+### 5. Check the Database
+Use Prisma Studio to inspect the updated database:
+`npx prisma studio`
+.Alternatively, query your database directly using a database client.
 
 ## Learn More
 

@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Header } from '@/components/layout/header'
+import { Header } from '@/components/layout/Header'
 import { BarChart2, CreditCard, DollarSign, LineChart } from 'lucide-react'
 
 export default function LandingPage() {
