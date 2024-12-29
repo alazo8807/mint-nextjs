@@ -50,6 +50,8 @@ export default function SyncButton({ onSynced }: SyncProps) {
             })
         );
       }
+
+      // TODO: remove transactions received in data.removed
   
       // Wait for all tasks to complete
       await Promise.all(tasks);

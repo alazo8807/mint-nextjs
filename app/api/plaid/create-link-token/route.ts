@@ -6,7 +6,6 @@ const client = createPlaidApiClient();
 
 export async function GET() {
   try {
-    console.log({secret: process.env.PLAID_SECRET})
     const response = await client.linkTokenCreate({
       user: { client_user_id: 'user-id' }, // Replace with your unique user ID
       client_name: 'my-mint',

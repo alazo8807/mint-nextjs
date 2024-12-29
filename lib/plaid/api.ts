@@ -42,6 +42,8 @@ export const syncTransactions = async () => {
     alert(error);
   }
 
+
+
   console.log('Sync Transactions:', data);
   return data;
 };
