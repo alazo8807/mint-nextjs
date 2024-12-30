@@ -21,7 +21,7 @@ export function createPlaidConfiguration(): Configuration {
   });
 }
 
-export function createPlaidApiClient() {
+export function createPlaidApiClient(): PlaidApi {
  return new PlaidApi(createPlaidConfiguration());
 }
 

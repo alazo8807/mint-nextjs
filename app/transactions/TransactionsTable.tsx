@@ -62,7 +62,7 @@ export default function TransactionsTable({
   });
 
   return (
-    <div className="mx-auto py-6">
+    <div className="mx-auto">
       {!isPlaidConnected && (
         <PlaidConnectionBanner onConnected={() => setIsPlaidConnected(true)} />
       )}

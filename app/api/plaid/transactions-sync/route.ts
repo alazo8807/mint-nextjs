@@ -35,18 +35,17 @@ export async function POST(req: NextRequest) {
     }
 
     for (const item of plaidTokens) {
-      let hasMore = true; // Initialize hasMore as true to enter the loop
-      let nextCursor = item.cursor ?? ""; // Start with the stored cursor or empty string
+      let hasMore = true;
+      let nextCursor = item.cursor ?? "";
 
       const { itemId, accessToken } = item;
       if (!itemId) return NextResponse.json({ error: 'Invalid item_id or user_id' }, { status: 404 });
       if (!accessToken) return NextResponse.json({ error: 'Invalid accessToken or user_id' }, { status: 404 });
 
       while (hasMore) {
-        // Call the transactions.sync endpoint with the access_token and cursor
         const response = await client.transactionsSync({
           access_token: accessToken,
-          cursor: nextCursor, // Use the cursor from the previous iteration
+          cursor: nextCursor,
           options: {
             include_original_description: true, // Needed to include the proper transaction description
           },
@@ -64,13 +63,13 @@ export async function POST(req: NextRequest) {
           },
         });
 
-        // Check if there are more transactions to fetch
-        hasMore = response.data.has_more;
-
         // Update the syncResult with the fetched transactions
         syncResult.added = [...syncResult.added, ...response.data.added];
         syncResult.modified = [...syncResult.modified, ...response.data.modified];
         syncResult.removed = [...syncResult.removed, ...response.data.removed];
+
+        // Check if there are more transactions to fetch
+        hasMore = response.data.has_more;
       }
     }
 

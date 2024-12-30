@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma/prismaClient';
+import prisma from '@/lib/prisma/client';
 
 // Create a new PlaidToken (for user connecting an account)
 export async function POST(request: Request) {

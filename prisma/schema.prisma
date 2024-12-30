@@ -34,15 +34,6 @@ model Transaction {
   updatedAt          DateTime @updatedAt
 }
 
-model PlaidSyncCursor {
-  id           Int      @id @default(autoincrement())
-  userId       String   // Associate with your app's user (e.g., UUID or email)
-  itemId       String   @unique // Plaid Item ID, unique per account
-  accessToken  String   // Current access token
-  cursor       String?  // Cursor for incremental sync
-  lastSyncedAt DateTime @default(now()) // Track the last sync time
-}
-
 model PlaidAccessToken {
   id           Int      @id @default(autoincrement())
   userId       String
@@ -54,4 +45,24 @@ model PlaidAccessToken {
   updatedAt    DateTime @updatedAt
 
   @@unique([userId, itemId])
+}
+
+// This is the schema for the Institution table
+model Institution {
+  id               Int      @id @default(autoincrement()) // Auto-increment primary key
+  institutionId    String   @unique // Unique institution identifier
+  institutionName  String   // Name of the institution
+  accounts         Account[] // One-to-many relation with Account
+}
+
+// This is the schema for the Account table
+model Account {
+  id             Int       @id @default(autoincrement()) // Auto-increment primary key
+  accountId      String    @unique // Unique account identifier
+  institutionId  String    // Foreign key to the Institution table
+  name           String    // Account name
+  subtype        String    // Account subtype (e.g., checking, savings)
+  currentBalance Float     // Current balance of the account
+
+  institution    Institution @relation(fields: [institutionId], references: [institutionId]) // Foreign key relation
 }
