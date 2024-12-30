@@ -99,7 +99,7 @@ export default function TransactionsTable({
                 <Pagination
                   currentPage={currentPage}
                   totalPages={totalPages}
-                  totalTransactions={totalTransactions}
+                  totalRows={totalTransactions}
                   onPageChange={onPageChange}
                 />
               </>

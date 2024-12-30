@@ -31,9 +31,9 @@ export default function LandingPage() {
 
         {/* Features Section */}
         <section className="py-16 sm:py-24">
-          <div className="container mx-auto px-4">
+          <div className="container mx-auto px-4 items-center">
             <h2 className="text-3xl font-bold text-gray-600 text-center mb-12">Key Features</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="flex justify-center flex-wrap gap-8">
               <FeatureCard 
                 icon={<BarChart2 className="h-8 w-8" />}
                 title="Expense Tracking"
@@ -43,16 +43,6 @@ export default function LandingPage() {
                 icon={<DollarSign className="h-8 w-8" />}
                 title="Budgeting Tools"
                 description="Create and manage budgets to help you stay on top of your financial goals."
-              />
-              <FeatureCard 
-                icon={<CreditCard className="h-8 w-8" />}
-                title="Bill Management"
-                description="Never miss a payment with our bill tracking and reminder features."
-              />
-              <FeatureCard 
-                icon={<LineChart className="h-8 w-8" />}
-                title="Investment Tracking"
-                description="Monitor your investments and track your portfolio performance over time."
               />
             </div>
           </div>
@@ -98,7 +88,7 @@ export default function LandingPage() {
 
 function FeatureCard({ icon, title, description }: { icon: React.ReactNode, title: string, description: string }) {
   return (
-    <div className="bg-white text-gray-700 p-6 rounded-lg shadow-md">
+    <div className="bg-white text-gray-700 p-6 rounded-lg shadow-md sm:w-full md:w-1/2 lg:w-1/3">
       <div className="text-blue-600 mb-4">{icon}</div>
       <h3 className="text-xl font-semibold mb-2">{title}</h3>
       <p className="text-gray-600">{description}</p>

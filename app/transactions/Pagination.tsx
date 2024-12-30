@@ -3,14 +3,14 @@ import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-r
 type PaginationProps = {
   currentPage: number;
   totalPages: number;
-  totalTransactions: number;
+  totalRows: number;
   onPageChange: (page: number) => void;
 };
 
 export default function Pagination({
   currentPage,
   totalPages,
-  totalTransactions,
+  totalRows,
   onPageChange,
 }: PaginationProps) {
   const generatePaginationButtons = () => {
@@ -53,9 +53,9 @@ export default function Pagination({
           </span>{" "}
           to{" "}
           <span className="font-medium">
-            {Math.min(currentPage * 10, totalTransactions)}
+            {Math.min(currentPage * 10, totalRows)}
           </span>{" "}
-          of <span className="font-medium">{totalTransactions}</span> results
+          of <span className="font-medium">{totalRows}</span> results
         </p>
       </div>
       <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
