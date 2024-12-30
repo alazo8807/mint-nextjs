@@ -46,7 +46,7 @@ export function Header() {
     <header className="border-b bg-white">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <div className="flex items-center gap-6">
-          <Link href="/" className="text-xl font-bold text-blue-600">
+          <Link href="/" className="text-xl font-bold text-green-700">
             MintClone
           </Link>
           <nav className="hidden md:flex items-center gap-6">

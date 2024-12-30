@@ -8,22 +8,31 @@ export default function LandingPage() {
       <Header />
       <main>
         {/* Hero Section */}
-        <section className="bg-blue-600 text-white">
-          <div className="container mx-auto px-4 py-16 sm:py-24 lg:py-32">
-            <div className="text-center">
-              <h1 className="text-4xl font-extrabold sm:text-5xl md:text-6xl">
+        <section
+          className="px-16 relative bg-cover bg-center bg-no-repeat text-black"
+          style={{
+            backgroundImage: "url('/piggybank_hero.jpg')",
+          }}
+        >
+          {/* Overlay (optional for better text readability) */}
+          <div className="absolute inset-0 bg-white/70 sm:bg-white/70 md:bg-white/30"></div>
+
+          <div className="relative container mx-auto px-4 py-16 sm:py-24 lg:py-32 flex flex-col lg:flex-row items-center lg:items-start">
+            {/* Left Section */}
+            <div className="lg:w-1/2 text-center lg:text-left text-gray-600">
+              <h1 className="text-4xl font-bold sm:text-5xl md:text-6xl leading-tight">
                 Take Control of Your Finances
               </h1>
-              <p className="mt-4 text-xl sm:text-2xl">
-                Track, budget, and achieve your financial goals with MintClone
+              <p className="mt-4 text-lg sm:text-xl text-gray-800">
+                Track, budget, and achieve your financial goals with our intuitive app.
               </p>
-              <div className="mt-8 flex justify-center">
-                <Link 
-                  href="/transactions" 
-                  className="rounded-md bg-white px-8 py-3 text-base font-medium text-blue-600 hover:bg-blue-50"
+              <div className="mt-8">
+                <a 
+                  href="#"
+                  className="inline-block rounded-full bg-black text-white px-8 py-3 text-base font-medium hover:bg-gray-800"
                 >
-                  Get Started
-                </Link>
+                  Get started
+                </a>
               </div>
             </div>
           </div>
