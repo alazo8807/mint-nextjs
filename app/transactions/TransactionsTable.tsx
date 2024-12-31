@@ -1,24 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import TableHeader from "./TableHeader";
 import TableRow from "./TableRow";
 import Pagination from "./Pagination";
 import EmptyState from "./EmptyState";
 import { TransactionFilters } from "@/components/transactions/TransactionFilters";
 import { PlaidConnectionBanner } from "@/components/banners/PlaidConnectionBanner";
-
-type Transaction = {
-  id: number;
-  date: string;
-  name: string;
-  category: string;
-  amount: number;
-};
+import { Transaction } from "@/lib/types";
 
 type SortKey = "date" | "description" | "category" | "amount";
 type SortOrder = "asc" | "desc";
-
 type TransactionsTableProps = {
   initialTransactions: Transaction[];
   currentPage: number;

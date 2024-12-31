@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { NextApiRequest} from 'next';
 import prisma from '@/lib/prisma/client';
 import { Account } from '@prisma/client';
 
@@ -24,10 +25,13 @@ export async function POST(req: Request) {
 }
 
 // GET: Retrieve all accounts for a specific institution
-export async function GET(req: Request) {
+export async function GET(req: NextApiRequest) {
   try {
-    const body = await req.json(); // Parse JSON body
-    const { institutionId } = body;
+    // Parse the URL using the URL API
+    const url = new URL(req.url || '');
+    
+    // Extract query parameters
+    const institutionId = url.searchParams.get('institutionId');
     
     if (!institutionId) {
       return NextResponse.json({ error: 'Institution ID is required' }, { status: 400 });
@@ -41,6 +45,7 @@ export async function GET(req: Request) {
 
     return NextResponse.json(accounts);
   } catch (error) {
+    console.log("Failed to fetch accounts", error);
     return NextResponse.json({ error: 'Failed to fetch accounts' }, { status: 500 });
   }
 }
