@@ -5,3 +5,10 @@ export type Transaction = {
     category: string;
     amount: number;
   };
+
+export type Account = {
+    id: string
+    name: string
+    type: string
+    bank: string
+  }

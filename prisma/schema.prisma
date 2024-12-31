@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,56 +7,69 @@ datasource db {
   url      = env("DATABASE_MIGRATION_URL")
 }
 
-model Transaction {
-  id                 String   @id
-  transactionId      String
-  accountId          String
-  amount             Float
-  currency           String?  // Nullable
-  unofficialCurrency String?  // Nullable
-  date               DateTime
-  authorizedDate     DateTime? // Nullable
-  name               String
-  merchantName       String?  // Nullable
-  pending            Boolean
-  pendingTransactionId String? // Nullable
-  category           String?  // Nullable
-  personalFinanceCategoryDetail String?
-  paymentChannel     String
-  transactionType    String?  // Nullable
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-}
-
 model PlaidAccessToken {
   id           Int      @id @default(autoincrement())
   userId       String
   itemId       String
   accessToken  String
   refreshToken String?
-  cursor       String?  // Cursor for sync operations
+  cursor       String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
   @@unique([userId, itemId])
 }
 
-// This is the schema for the Institution table
-model Institution {
-  id               Int      @id @default(autoincrement()) // Auto-increment primary key
-  institutionId    String   @unique // Unique institution identifier
-  institutionName  String   // Name of the institution
-  accounts         Account[] // One-to-many relation with Account
+model Transaction {
+  id                            String    @id
+  transactionId                 String
+  accountId                     String
+  amount                        Float
+  currency                      String?
+  unofficialCurrency            String?
+  date                          DateTime
+  authorizedDate                DateTime?
+  name                          String
+  merchantName                  String?
+  pending                       Boolean
+  pendingTransactionId          String?
+  category                      String?
+  personalFinanceCategoryDetail String?
+  paymentChannel                String
+  transactionType               String?
+  createdAt                     DateTime  @default(now())
+  updatedAt                     DateTime  @updatedAt
 }
 
-// This is the schema for the Account table
-model Account {
-  id             Int       @id @default(autoincrement()) // Auto-increment primary key
-  accountId      String    @unique // Unique account identifier
-  institutionId  String    // Foreign key to the Institution table
-  name           String    // Account name
-  subtype        String    // Account subtype (e.g., checking, savings)
-  currentBalance Float     // Current balance of the account
+model Institution {
+  id              Int       @id @default(autoincrement())
+  institutionId   String    @unique
+  institutionName String
+  accounts        Account[]
+}
 
-  institution    Institution @relation(fields: [institutionId], references: [institutionId]) // Foreign key relation
+model Account {
+  id             Int         @id @default(autoincrement())
+  accountId      String      @unique
+  institutionId  String
+  name           String
+  subtype        String
+  currentBalance Float
+  institution    Institution @relation(fields: [institutionId], references: [institutionId])
+}
+
+// ---------------------------------
+// Views
+// ---------------------------------
+
+// Model of UniqueAccountTypes view
+model UniqueAccountTypes {
+  accountType String @id
+}
+
+model AccountInformationView {
+  accountId        String @id
+  accountName      String
+  institutionId    String
+  institutionName  String
 }
