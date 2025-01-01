@@ -12,18 +12,39 @@ export default function TransactionsContainer() {
   const [totalPages, setTotalPages] = useState(1);
   const [totalTransactions, setTotalTransactions] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [selectedAccounts, setSelectedAccounts] = useState<string[]>([])
-  const [selectedTypes, setSelectedTypes] = useState<string[]>([])
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [selectedAccounts, setSelectedAccounts] = useState<string[]>([]);
+  const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const ITEMS_PER_PAGE = 10; // Define items per page
 
-  const fetchAndSetTransactions = async (page: number) => {
+  useEffect(() => {
+    fetchAndSetTransactions(1);
+  }, []);
+
+  // Handler for updating selected accounts
+  const handleAccountSelection = (accountId: string) => {
+    setSelectedAccounts((prev) =>
+      prev.includes(accountId)
+        ? prev.filter((id) => id !== accountId)
+        : [...prev, accountId]
+    );
+  };
+
+  // Fetch transactions when accounts change
+  useEffect(() => {
+    fetchAndSetTransactions(1, selectedAccounts);
+  }, [selectedAccounts]);
+
+  const fetchAndSetTransactions = async (
+    page: number,
+    selectedAccounts?: string[]
+  ) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetchTransactions(page); // Fetch transactions for the given page
+      const response = await fetchTransactions(page, selectedAccounts);
       setTransactions(response.transactions);
       setCurrentPage(response.currentPage);
       setTotalPages(response.totalPages);
@@ -36,34 +57,19 @@ export default function TransactionsContainer() {
     }
   };
 
-  useEffect(() => {
-    fetchAndSetTransactions(1);
-  }, []);
-
   const handlePageChange = (page: number) => {
-    fetchAndSetTransactions(page);
+    fetchAndSetTransactions(page, selectedAccounts); // Include the filter in the page change
   };
 
-  const handleAccountChange = (accountId: string) => {
-    setSelectedAccounts(prev => {
-      if (prev.includes(accountId)) {
-        return prev.filter(id => id !== accountId)
-      } else {
-        return [accountId]
-      }
-    })
-  }
-
   const handleTypeChange = (typeId: string) => {
-    setSelectedTypes(prev => {
+    setSelectedTypes((prev) => {
       if (prev.includes(typeId)) {
-        return prev.filter(id => id !== typeId)
+        return prev.filter((id) => id !== typeId);
       } else {
-        return [typeId]
+        return [typeId];
       }
-    })
-  }
-
+    });
+  };
 
   if (loading) {
     return (
@@ -78,16 +84,20 @@ export default function TransactionsContainer() {
   return (
     <>
       <div className="flex flex-col space-y-8 mt-6">
-          <TransactionsActions
-            onSyncComplete={() => fetchAndSetTransactions(1)}
-            onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
-          />
+        <TransactionsActions
+          onSyncComplete={() => fetchAndSetTransactions(1)}
+          onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+        />
         <div className="flex flex-col sm:flex-row">
-          <div className={`${isSidebarOpen ? 'block' : 'hidden'} sm:block sm:w-64 mb-4 sm:mb-0`}>
+          <div
+            className={`${
+              isSidebarOpen ? "block" : "hidden"
+            } sm:block sm:w-64 mb-4 sm:mb-0`}
+          >
             <TransactionSidebar
               selectedAccounts={selectedAccounts}
               selectedTypes={selectedTypes}
-              onAccountChange={handleAccountChange}
+              onAccountChange={handleAccountSelection}
               onTypeChange={handleTypeChange}
             />
           </div>

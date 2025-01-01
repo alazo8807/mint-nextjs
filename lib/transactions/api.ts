@@ -4,22 +4,19 @@
 
 import { BASE_URL } from "@/lib/constants";
 
-export async function fetchTransactions(page: number) {
-  try {
-    const response = await fetch(`${BASE_URL}/api/transactions?page=${page}`, {
-      cache: "no-store",
-    });
-    if (!response.ok) {
-      throw new Error("Failed to fetch transactions");
-    }
+export const fetchTransactions = async (page: number, selectedAccounts?: string[]) => {
+  const queryParams = new URLSearchParams({
+    page: page.toString(),
+    ...(selectedAccounts && { selectedAccounts: selectedAccounts.join(',') }), // Include selectedAccounts if provided
+  });
 
-    return await response.json();
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
-    console.error(error);
+  const response = await fetch(`/api/transactions?${queryParams.toString()}`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch transactions');
   }
-}
+  return response.json();
+};
+
 
 export async function saveTransactions(transactions: any[], method: 'POST' | 'PUT') {
   try {

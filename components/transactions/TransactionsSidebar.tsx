@@ -2,15 +2,6 @@
 
 import { ChevronDown, ChevronRight, CreditCard, Wallet, LineChart, Landmark, Building } from 'lucide-react'
 import { useState, useEffect } from 'react'
-import { Transaction, Account } from "@/lib/types";
-
-interface InstitutionAccounts {
-  id: string
-  name: string
-  icon: React.ReactNode
-  types: { [type: string]: string }[]
-  accounts: Account[]
-}
 
 interface TransactionSidebarProps {
   selectedAccounts: string[]
@@ -40,39 +31,6 @@ export function TransactionSidebar({
   const [isAccountsOpen, setIsAccountsOpen] = useState(true);
   const [accountTypes, setAccountTypes] = useState<AccountType[]>([]);
   const [accountInfo, setAccountInfo] = useState<AccountInfo[]>([]);
-  const [accounts, setAccounts] = useState<InstitutionAccounts[]>([]);
-
-//   const accountTypes: AccountType[] = [
-//     {
-//       id: 'cash-credit',
-//       name: 'Cash & Credit',
-//       icon: <CreditCard className="h-4 w-4" />,
-//       accounts: [
-//         { id: 'checking', name: 'Checking Account', type: 'cash-credit', bank: 'Bank of America' },
-//         { id: 'savings', name: 'Savings Account', type: 'cash-credit', bank: 'Wells Fargo' },
-//         { id: 'credit-card', name: 'Credit Card', type: 'cash-credit', bank: 'Chase' },
-//       ]
-//     },
-//     {
-//       id: 'investment',
-//       name: 'Investment',
-//       icon: <LineChart className="h-4 w-4" />,
-//       accounts: [
-//         { id: 'brokerage', name: 'Brokerage Account', type: 'investment', bank: 'Fidelity' },
-//         { id: 'ira', name: '401(k)', type: 'investment', bank: 'Vanguard' },
-//       ]
-//     },
-//     {
-//       id: 'loan',
-//       name: 'Loans',
-//       icon: <Building className="h-4 w-4" />,
-//       accounts: [
-//         { id: 'mortgage', name: 'Mortgage', type: 'loan', bank: 'Quicken Loans' },
-//         { id: 'student-loan', name: 'Student Loan', type: 'loan', bank: 'Sallie Mae' },
-//       ]
-//     },
-//   ]
-
 
   // Fetch institutions and accounts data from the API
   useEffect(() => {
@@ -87,7 +45,6 @@ export function TransactionSidebar({
         const accountInfoResponse = await fetch('/api/account/info');
         const accountInfoData: AccountInfo[] = await accountInfoResponse.json();
         setAccountInfo(accountInfoData);
-        console.log({accountInfoData: accountInfoData});
       } catch (error) {
         console.error('Error fetching accounts data:', error);
       }
