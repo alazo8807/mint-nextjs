@@ -10,6 +10,8 @@ export async function GET(req: NextRequest) {
   const useFakeTransactions = searchParams.get('fake'); // Debug flag to return mock data
   const page = searchParams.get('page') || '1';
   const selectedAccounts = searchParams.get('selectedAccounts'); // Comma-separated account IDs
+  const sortColumn = searchParams.get('sortColumn') || 'date'; // Default sort column
+  const sortDirection = searchParams.get('sortDirection') || 'desc'; // Default sort direction
   const pageNumber = parseInt(page as string, 10);
   const skip = (pageNumber - 1) * ITEMS_PER_PAGE;
 
@@ -29,6 +31,9 @@ export async function GET(req: NextRequest) {
       where: accountFilters
         ? { accountId: { in: accountFilters } } // Filter by selected accounts
         : undefined, // No filtering if no selected accounts
+      orderBy: {
+        [sortColumn]: sortDirection,
+      },
     });
 
     // Get the total count of filtered transactions

@@ -4,25 +4,34 @@
 
 import { BASE_URL } from "@/lib/constants";
 
-export const fetchTransactions = async (page: number, selectedAccounts?: string[]) => {
+export const fetchTransactions = async (
+  page: number,
+  sortColumn: string = 'date',
+  sortDirection: string = 'desc',
+  selectedAccounts?: string[]
+) => {
   const queryParams = new URLSearchParams({
     page: page.toString(),
-    ...(selectedAccounts && { selectedAccounts: selectedAccounts.join(',') }), // Include selectedAccounts if provided
+    sortColumn,
+    sortDirection,
+    ...(selectedAccounts && { selectedAccounts: selectedAccounts.join(",") }), // Include selectedAccounts if provided
   });
 
   const response = await fetch(`/api/transactions?${queryParams.toString()}`);
   if (!response.ok) {
-    throw new Error('Failed to fetch transactions');
+    throw new Error("Failed to fetch transactions");
   }
   return response.json();
 };
 
-
-export async function saveTransactions(transactions: any[], method: 'POST' | 'PUT') {
+export async function saveTransactions(
+  transactions: any[],
+  method: "POST" | "PUT"
+) {
   try {
     const response = await fetch(`${BASE_URL}/api/transactions`, {
       method,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         transactions,
       }),
@@ -33,7 +42,7 @@ export async function saveTransactions(transactions: any[], method: 'POST' | 'PU
     }
 
     return await response.json();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.error(error);
   }

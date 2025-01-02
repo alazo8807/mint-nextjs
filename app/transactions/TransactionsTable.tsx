@@ -9,13 +9,16 @@ import { TransactionFilters } from "@/components/transactions/TransactionFilters
 import { PlaidConnectionBanner } from "@/components/banners/PlaidConnectionBanner";
 import { Transaction } from "@/lib/types";
 
-type SortKey = "date" | "description" | "category" | "amount";
-type SortOrder = "asc" | "desc";
+// type SortKey = "date" | "description" | "category" | "amount";
+// type SortOrder = "asc" | "desc";
 type TransactionsTableProps = {
   initialTransactions: Transaction[];
   currentPage: number;
   totalPages: number;
   totalTransactions: number;
+  sortColumn: string;
+  sortDirection: string;
+  onSortChange: (column: string) => void;
   onPageChange: (page: number) => void;
 };
 
@@ -24,34 +27,22 @@ export default function TransactionsTable({
   currentPage,
   totalPages,
   totalTransactions,
+  sortColumn,
+  sortDirection,
+  onSortChange,
   onPageChange,
 }: TransactionsTableProps) {
   const [transactions] = useState(initialTransactions);
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortKey, setSortKey] = useState<SortKey>("date");
-  const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
+  // const [sortKey, setSortKey] = useState<SortKey>("date");
+  // const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
   const [isPlaidConnected, setIsPlaidConnected] = useState(true);
 
-  // Handle sorting logic
-  const handleSort = (key: SortKey) => {
-    if (sortKey === key) {
-      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-    } else {
-      setSortKey(key);
-      setSortOrder("asc");
-    }
-  };
-
   // Filter and sort transactions
-  const filteredAndSortedTransactions = transactions
+  const filteredTransactions = transactions
   .filter((txn) =>
     (txn.name || "").toLowerCase().includes(searchTerm.toLowerCase())
-  )
-  .sort((a, b) => {
-    if (a[sortKey] < b[sortKey]) return sortOrder === "asc" ? -1 : 1;
-    if (a[sortKey] > b[sortKey]) return sortOrder === "asc" ? 1 : -1;
-    return 0;
-  });
+  );
 
   return (
     <div className="mx-auto">
@@ -72,18 +63,18 @@ export default function TransactionsTable({
             </div>
           </div>
           <div className="overflow-x-auto">
-            {filteredAndSortedTransactions.length > 0 ? (
+            {filteredTransactions.length > 0 ? (
               <>
                 <table className="w-full">
                   <thead className="bg-gray-50">
                     <TableHeader
-                      sortKey={sortKey}
-                      sortOrder={sortOrder}
-                      onSort={handleSort}
+                      sortKey={sortColumn}
+                      sortOrder={sortDirection}
+                      onSort={onSortChange}
                     />
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {filteredAndSortedTransactions.map((txn) => (
+                    {filteredTransactions.map((txn) => (
                       <TableRow key={txn.id} transaction={txn} />
                     ))}
                   </tbody>

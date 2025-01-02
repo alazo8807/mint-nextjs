@@ -16,11 +16,11 @@ export default function TransactionsContainer() {
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const ITEMS_PER_PAGE = 10; // Define items per page
+  const [sortColumn, setSortColumn] = useState<string>('date');
+  const [sortDirection, setSortDirection] = useState<string>('desc');
 
   useEffect(() => {
-    fetchAndSetTransactions(1);
+    fetchAndSetTransactions(1, sortColumn, sortDirection, selectedAccounts);
   }, []);
 
   // Handler for updating selected accounts
@@ -34,17 +34,19 @@ export default function TransactionsContainer() {
 
   // Fetch transactions when accounts change
   useEffect(() => {
-    fetchAndSetTransactions(1, selectedAccounts);
-  }, [selectedAccounts]);
+    fetchAndSetTransactions(1, sortColumn, sortDirection, selectedAccounts);
+  }, [sortColumn, sortDirection, selectedAccounts]);
 
   const fetchAndSetTransactions = async (
     page: number,
+    sortColumn: string, 
+    sortDirection: string,
     selectedAccounts?: string[]
   ) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetchTransactions(page, selectedAccounts);
+      const response = await fetchTransactions(page, sortColumn, sortDirection, selectedAccounts);
       setTransactions(response.transactions);
       setCurrentPage(response.currentPage);
       setTotalPages(response.totalPages);
@@ -58,7 +60,7 @@ export default function TransactionsContainer() {
   };
 
   const handlePageChange = (page: number) => {
-    fetchAndSetTransactions(page, selectedAccounts); // Include the filter in the page change
+    fetchAndSetTransactions(page, sortColumn, sortDirection, selectedAccounts); // Include the filter in the page change
   };
 
   const handleTypeChange = (typeId: string) => {
@@ -69,6 +71,15 @@ export default function TransactionsContainer() {
         return [typeId];
       }
     });
+  };
+
+  const handleSortChanged = (column: string) => {
+    if (sortColumn === column) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortColumn(column);
+      setSortDirection("asc");
+    }
   };
 
   if (loading) {
@@ -85,7 +96,7 @@ export default function TransactionsContainer() {
     <>
       <div className="flex flex-col space-y-8 mt-6">
         <TransactionsActions
-          onSyncComplete={() => fetchAndSetTransactions(1)}
+          onSyncComplete={() => fetchAndSetTransactions(1, sortColumn, sortDirection, selectedAccounts)}
           onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
         />
         <div className="flex flex-col sm:flex-row">
@@ -107,6 +118,9 @@ export default function TransactionsContainer() {
               currentPage={currentPage}
               totalPages={totalPages}
               totalTransactions={totalTransactions}
+              sortColumn={sortColumn}
+              sortDirection={sortDirection}
+              onSortChange={handleSortChanged}
               onPageChange={handlePageChange}
             />
           </div>

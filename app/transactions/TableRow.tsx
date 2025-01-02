@@ -15,7 +15,7 @@ type Transaction = {
   export default function TableRow({ transaction }: TableRowProps) {
     const renderCategory = (category: string): string => {
       const categoriesArr = JSON.parse(category);
-      return categoriesArr[categoriesArr.length - 1];
+      return categoriesArr ? categoriesArr[categoriesArr.length - 1]: "N/A";
     }
 
     return (
